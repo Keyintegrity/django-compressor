@@ -62,24 +62,27 @@ def get_offline_manifest_filename():
     return os.path.join(output_dir, settings.COMPRESS_OFFLINE_MANIFEST)
 
 
-_offline_manifest = None
+def get_offline_manifest_cachekey():
+    return simple_cachekey('offline_manifest')
 
 
 def get_offline_manifest():
-    global _offline_manifest
-    if _offline_manifest is None:
+    key = get_offline_manifest_cachekey()
+    offline_manifest = cache.get(key)
+    if offline_manifest is None:
         filename = get_offline_manifest_filename()
         if default_storage.exists(filename):
             with default_storage.open(filename) as fp:
-                _offline_manifest = json.loads(fp.read().decode('utf8'))
+                offline_manifest = json.loads(fp.read().decode('utf8'))
+                cache.set(key, offline_manifest)
         else:
-            _offline_manifest = {}
-    return _offline_manifest
+            offline_manifest = {}
+    return offline_manifest
 
 
 def flush_offline_manifest():
-    global _offline_manifest
-    _offline_manifest = None
+    key = get_offline_manifest_cachekey()
+    cache.delete(key)
 
 
 def write_offline_manifest(manifest):
