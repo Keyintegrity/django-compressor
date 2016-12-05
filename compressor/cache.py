@@ -74,9 +74,9 @@ def get_offline_manifest():
         if default_storage.exists(filename):
             with default_storage.open(filename) as fp:
                 offline_manifest = json.loads(fp.read().decode('utf8'))
-                cache.set(key, offline_manifest)
         else:
             offline_manifest = {}
+        cache.set(key, offline_manifest)
     return offline_manifest
 
 
